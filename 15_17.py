@@ -1,4 +1,5 @@
 import re
+#Класс узла дерева
 class Node:
     def __init__(self, data, left=None, right=None):
         self.data = data
@@ -32,7 +33,13 @@ def CheckifNode(i):
             return None
         else:
             return Node(i)
-
+'''
+Дерево подается в скобочно-линейной записи (Напр. 8(2,10(,12)) )
+Перед тем, как строится само дерево, оно преобразуется в список (Напр. [8, '(', 2, 10, '(', ' ', 12, ')', ')'])
+Когда в списке встречается конструкция [X, '(', A, B, ')'], то эта конструкция сворачивается
+в узел X с правым дочерним узлом B и левым дочерним узлом A. 
+В результате в стэке останется корень дерева.
+'''
 def buildTree(s):
     _tree = []
 
@@ -45,25 +52,25 @@ def buildTree(s):
             _tree.append(x)
         elif x == ',':
             continue
-        else:
+        else: # x == ')'
             tr = Node(_tree[-4], CheckifNode(_tree[-2]), CheckifNode(_tree[-1]))
             del _tree[len(_tree)-4:len(_tree)]
             _tree.append(tr)
 
     return _tree[0]
-
+#Прямой обход дерева: посещение родительских узлов до дочерних
 def pre_order(node):
     if node:
         print(node.data, end=' ')
         pre_order(node.left)
         pre_order(node.right)
-
+#Центральный обход: сначала обход по левому дочернему узлу, потом вывод родительского, потом обход по правому дочернему узлу
 def in_order(node):
     if node:
         in_order(node.left)
         print(node.data, end=' ')
         in_order(node.right)
-
+#Концевой обход: сначала обход дочерних узлов, потом родительского
 def post_order(node):
     if node:
         post_order(node.left)
@@ -101,6 +108,15 @@ print('\nПрямой без рекурсии, 16 лаба')
 n_pre_order(tree)
 
 #17 лаба
+'''Функция для добавления вершины БДП
+Свойства:
+Все узлы в левой ветке меньше рассматриваемого узла,
+Все узлы в правой ветке больше рассматриваемого узла.
+По этим свойствам проводится операция вставки нового узла:
+Если новый узел Y больше рассматриваемого узла X, рассматриваем наличие у X правого дочернего узла,
+если его нет - вставляем Y, если есть - производим функцию вставки Y в правое поддерево.
+Аналогично с новыми узлами, меньшими X.
+'''
 def insertNode(key, node):
     if(key < node.data):
         if(node.left):
@@ -114,21 +130,22 @@ def insertNode(key, node):
             node.right = Node(key)
     else:
         print('Такой узел уже существует')
-
+        
+#Функция поиска наименьшего узла для операции удаления
 def minValueNode(node):
     current = node
     if(current):
         while(current.left):
             current = current.left
     return current
-
+'''Функция удаления вершины БДП'''
 def delNode(key, node):
     if (not node):
         return node
-    if (key < node.data):
-        node.left = delNode(key, node.left)
-    elif (key > node.data):
-        node.right = delNode(key, node.right)
+    if (key < node.data):                       #
+        node.left = delNode(key, node.left)     # Ищем нужный узел
+    elif (key > node.data):                     #
+        node.right = delNode(key, node.right)   #
     else:
         # Если у узла нет дочерних узлов - заменяем на None
         # Если есть 1 дочерний узел - заменяем на него   
@@ -139,16 +156,31 @@ def delNode(key, node):
             temp = node.left
             return temp
 
-        # Если есть 2 дочерних узла - ищем минимальный элемент в правой ветке, перестраивая ее
+        # Если есть 2 дочерних узла - ищем минимальный элемент в правой ветке удаляемого родительского узла
+        # Этот элемент становится на место удаляемого узла
+        # Ветка, в которой был этот узел ранее, перестраивается
         temp = minValueNode(node.right)
         node.data = temp.data
         node.right = delNode(temp.data, node.right)
 
     return node
 
+'''Операция поиска вершины БДП'''
+def searchNode(key, node):
+    if not node:
+        return False
+    if key > node.data:
+        return (searchNode(key, node.right))
+    elif key < node.data:
+        return (searchNode(key, node.left))
+    else:
+        return True
+    
 print('\n17 лаба')
 insertNode(int(input('Узел для добавления: ')), tree)
 pre_order(tree)
 
 tree = delNode(int(input('\nУзел для удаления: ')), tree)
 pre_order(tree)
+
+print(searchNode(int(input('\nУзел для поиска: ')), tree))
