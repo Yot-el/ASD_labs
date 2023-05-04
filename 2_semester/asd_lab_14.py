@@ -29,9 +29,7 @@ def rabinFunc(pattern, text):
             if not k:
                 res.append(f'{text[i:i+j+1]}, {i}, {i+j}') # Добавляем совпадение в массив
         
-        if i + M < len(text): # У Тенебекова в коде этого не было, но если пробегать i от 0 до len(text)-M без доб-я 1, то последние
-            # M символов у меня не обрабатываются, т.е. в text последний us будет проигнорирован (если pattern = 'us' например)
-            # Если пробегать i от 0 до len(text)-M+1, то приходится добавлять эту проверку, я не знаю как по-другому
+        if i + M < len(text):
             hash_text = hashUpdate(hash_text, text[i], text[i + M])
 
     if res:
